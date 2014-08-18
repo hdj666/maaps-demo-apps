@@ -52,3 +52,24 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 
+#
+#
+# HDJ, okay thats only for me
+Basics
+![a-zA-Z]*/
+
+# I use IntelliJ for development ...
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dataSources.*
+.idea/deployment.xml
+
+# "compiler" output
+*.out
+parsetab.py*
+
+# now vim swp file
+*.swp
+
+
+
