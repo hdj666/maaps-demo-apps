@@ -26,7 +26,6 @@ chain TestModuleTimeout {
     }
 
     module python main {
-        abc     = 666
         timeout = 2
         code    = {
             import time
