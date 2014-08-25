@@ -1,0 +1,10 @@
+
+
+chain logNow {
+    module python main {
+        code = {
+            logger.info("helper => payload is [%s]", payload)
+            logger.info("helper => chainvars are [%s]", chainvars)
+        }
+    }
+}
