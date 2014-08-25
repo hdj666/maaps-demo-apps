@@ -53,11 +53,8 @@ coverage.xml
 docs/_build/
 
 #
+# HDJ
 #
-# HDJ, okay thats only for me
-Basics
-![a-zA-Z]*/
-
 # I use IntelliJ for development ...
 .idea/workspace.xml
 .idea/tasks.xml

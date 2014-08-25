@@ -1,0 +1,58 @@
+#
+# To start the application use something like this:
+#   curl --data "param1=value1&param2=valu2&x=666" http://localhost:8081/somewhere
+#
+
+chain simpleTest {
+
+    # HttpListener needs a lot of rework to be realy usefull.
+    # Anyway, it's a entrypoint for this test-application
+    entrypoint HttpListener "webserver_1" {
+        Port    = 8081
+        Address  = "localhost"
+        Path    = "/somewhere"
+    }
+
+    module python CodeInline {
+        Code = {
+        # The log line shows something like this:
+        #   '2014-08-18 22:06:34' 1 @ CodeInline          7173/simpleTest     -> maaps.module.python.code  - INFO -  My payload is '{'x': '666', 'param2': 'valu2', 'param1': 'value1'}'
+        #                             x                        x                                                     x
+        #                             x=> The Module Name      x=> The chain name                                    x=> The message
+        #
+            logger.info("My payload is '%s'", payload)
+            logger.info("Payload type  '%s'", type(payload))
+            #
+            # change the payload
+            payload = "value from inlineExample"
+        }
+    }
+
+    module python "one more" {
+        Code = {
+            logger.info("My payload is '%s'", payload)
+            logger.info("Payload type  '%s'", type(payload))
+
+            # add a chainvar for the next step
+            chainvars['test.module.last_one'] = 'setFrom->one more'
+        }
+    }
+    #
+    # Pythoncode in a file.
+    module python CodeInFile {
+        Filename = "code_in_file_demo.py"
+    }
+
+    module python farewell {
+        code = {
+            logger.info("*"*40)
+            logger.info("Thats all for now.")
+            logger.info("Before I forget ...")
+            logger.info("\tthe actual payload is '%s'.", payload)
+            logger.info("\tthe chainvar 'test.module.last_one' is '%s'.", chainvars['test.module.last_one'])
+            logger.info("*"*40)
+        }
+    }
+
+    # No ExceptionHandler defined
+}

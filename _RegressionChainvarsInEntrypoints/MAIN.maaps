@@ -1,0 +1,50 @@
+#
+# Regression Test for
+# BUG chainvars value set in EntryPoint comes not the later steps.
+#
+
+chain TestCVinEP {
+
+    EntryPoint loop waitForFile {
+        delay = 3
+        code  = {
+            from os         import unlink
+            from os.path    import exists, isfile
+
+            filename            = '/tmp/go'
+            chainvars['test']   = False # => init default
+
+            if exists(filename):
+                payload = 'foundFile'
+
+                with file(filename, 'r') as fp:
+                    data = fp.read().strip()
+
+                if len(data) > 0:
+                    chainvars['test'] = data
+                else:
+                    chainvars['test'] = True
+
+                logger.info('Removing File.')
+                unlink(filename)
+        }
+    }
+
+    module python main {
+        code = {
+            logger.info("-"*40)
+            logger.info("chainvars['test'] value = %s", chainvars.get('test', 'uiui Key "test" not found!!'))
+            logger.info("-"*40)
+        }
+    }
+
+    onException myExceptionHandler {
+        code = {
+            logger.info("*"*40)
+            logger.error("Houston we have a exception!")
+            logger.info("The exception is: %s", exception)
+            logger.info("*"*40)
+        }
+    }
+
+}

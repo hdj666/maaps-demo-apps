@@ -1,0 +1,59 @@
+#
+# Demonstrate exception handling.
+#
+# The application use a loop entrypoint
+#
+# Activate chain ExceptionOne with:
+#   o) for a normal run
+#       echo "some text" > /tmp/go
+#   o) for a run with rasing a exception
+#       echo "crash" > /tmp/go
+
+chain ExceptionOne {
+
+    # wait for a file /tmp/go
+    entrypoint loop waitForFile {
+        delay = 3
+        code  = {
+            from os         import unlink
+            from os.path    import exists, isfile
+
+            filename            = '/tmp/go'
+            chainvars['raise']  = False # => init default
+            payload             = None
+
+            if exists(filename):
+                payload = 'foundFile'
+
+                with file(filename, 'r') as fp:
+                    data = fp.read()
+
+                if data.strip() == 'crash':
+                    chainvars['raise'] = True
+
+                logger.info('Removing File.')
+                unlink(filename)
+        }
+    }
+
+    module python main {
+        code = {
+            import sys
+            logger.info("My payload is '%s'", payload)
+            logger.info("Value of 'raise' in chainvars is '%s'", chainvars['raise'])
+
+            if chainvars['raise']:
+                raise RuntimeError('We have to raise.')
+        }
+    }
+
+    onException myExceptionHandler {
+        code = {
+            logger.info("*"*40)
+            logger.error("Houston we have a exception!")
+            logger.info("The exception is: %s", exception)
+            logger.info("*"*40)
+        }
+    }
+
+}
